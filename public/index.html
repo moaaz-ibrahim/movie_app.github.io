@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie app</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300&display=swap" rel="stylesheet">
+</head>
+<style>
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        
+    }
+    label , input , button {
+        width:20% ;
+       
+    }
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        text-align: center;
+       height: 100%;
+        width: 100%;
+        /* background: url(./backgeoung.jpg); */
+    }
+    .movDiv{
+        width: 20%;
+       /* margin: 10px 10px 10px 10px; */
+       margin:  0 auto;
+       border: 2px solid black;
+       background-color: bisque;
+    }
+    h3{
+        font-size: medium;
+        /* font-weight: bold; */
+        word-spacing: 2px;
+        font-family: 'Mohave', sans-serif;
+    }
+    i{
+        font-size: 20px;
+        cursor: pointer;
+    }
+  
+    .buttons {
+        width: 50%;
+    }
+    @media only screen and (max-width: 600px) {
+  .container{
+      display: block;
+  }
+  .movDiv{
+      width: 100%;
+      margin-bottom: 20px;
+  }
+  i{
+      /* position: absolute;
+      top: 100%;
+      left: 50%; */
+      margin-bottom: 40px;
+      transform: translate(150px,35px);
+      font-size: 30px;
+      
+  }
+  .buttons{
+      width: 100%;
+      margin-bottom: 20px;
+  }
+  input {
+      width: 80%;
+  }
+}
+
+</style>
+<body>
+  
+    <label for="">Name: </label>
+    <input type="text" class="name">
+    <div class="buttons">
+
+        <button class="imdb">Search</button>
+        <button class="list" onclick="window.open('./list.html')">My List</button>
+    </div>
+    <div class="container">
+
+    </div>
+    
+
+    <script>
+      // this is a completed project but there're some ideas I was thinking about to add it 
+      // so you might find some functions which are ready to be used but its never called in the code :) 
+        adlog
+        const btn = document.querySelector('button');
+        const imdb = document.querySelector('.imdb');
+       
+document.addEventListener('keydown', (event) => {
+  var name = event.key;
+if (name=='Enter')
+imdb.click()
+}, false);
+    
+        const container = document.querySelector('.container');
+        const images = 'https://image.tmdb.org/t/p/w500/';
+var counter = 0;
+        var idNum = 1;
+        function addToDb(name){
+
+           
+                const movieName = name;
+                
+                idNum = parseInt(idNum);
+                
+                var data = {
+                    id : idNum,
+                    name : movieName,
+                    
+                };
+            
+                var options = {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                };
+                fetch('/api' , options)
+                .then(res=>res.json())
+                .then(data=>console.log(data));
+    
+                idNum++;
+           
+        }
+
+        imdb.addEventListener('click' , ()=>{
+        //    addToDb();
+            fetchData();
+            
+            
+        })
+        function getInfo(data){
+            container.innerHTML = ``;
+            for (var i =0 ; i<=(data.results.length-1) ; i++){
+                var addDiv = document.createElement('div');
+                var movDiv = document.createElement('div');
+
+               
+                
+            
+                var movieName = document.querySelector('.name').value;
+                
+               
+                
+                container.appendChild(movDiv);
+                movDiv.className = `movDiv ${i}`;
+                var name = data.results[i].original_title
+                var imgSrc = data.results[i].poster_path;
+                var rate = data.results[i].vote_average;
+                var description = data.results[i].overview;
+                var relDate = data.results[i].release_date
+                
+                const movName = document.createElement('h3');
+                movName.className ='movie ' + i;
+               
+              
+                
+                movName.innerText = name + ' (' + relDate.substring(0,4) +')';
+                movDiv.appendChild(movName);
+    
+                const movRate = document.createElement('h3');
+                movRate.innerText ='Rate : '+  rate;
+                movDiv.appendChild(movRate)
+    
+                const movDesc = document.createElement('h3');
+                movDesc.innerText = description;
+                movDiv.appendChild(movDesc)
+
+                movDiv.innerHTML +=`<i onclick="adlog(${i})"class="fas fa-plus-square ${i}"></i>`;
+    
+                const img = document.createElement('img');
+                if (imgSrc ==null){
+                    img.src = 'https://cdn.glitch.global/e6c55a38-81c3-4fe1-81e4-1ba648453ed9/null_img.png?v=1643935210512';
+                    img.width=300;
+                    img.height =300;
+                }
+                else {
+                    img.src = images + imgSrc;
+                    img.width=300;
+                    img.height =300; 
+                }
+                movDiv.appendChild(img)
+             
+            }
+
+            
+        }
+        function fetchData()
+        {
+            var movieName = document.querySelector('.name').value;
+           movieName= movieName.replaceAll(' ', '%20')
+            fetch(`https://api.themoviedb.org/3/search/movie?api_key=a23d26397704c9e669e5e788ec4c6b54&language=en-US&query=${movieName}&page=1&include_adult=false`)
+            .then(res=>res.json())
+            .then(data=>{
+                console.log(data)
+            
+                getInfo(data);
+            })
+        }
+        function adlog(count){
+            
+         
+               var counter = Object.values({...localStorage}).length;
+        console.log(counter)
+        var adMovDiv = document.getElementsByClassName(`movDiv ${count}`);
+            // var movDb = delMovDiv[0].innerText;
+             const name = document.getElementsByClassName(`movie ${count}`)[0].innerText;
+             localStorage.setItem(`movie ${counter}`, name)
+             
+             alert('Movie Added to your list successfully');
+             
+        }
+    </script>
+</body>
+</html>

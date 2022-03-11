@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your List</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300&display=swap" rel="stylesheet">
+</head>
+<style>
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        
+        
+    }
+    label , input , button {
+        width:20% ;
+       
+    }
+    label{
+        margin-bottom: 20px;
+    }
+    .container {
+        font-family: 'Mohave', sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        text-align: center;
+       height: 100%;
+        width: 100%;
+    }
+    .movDiv{
+        width: 20%;
+       /* margin: 10px 10px 10px 10px; */
+       margin:  0 auto;
+       border: 2px solid black;
+       background-color: bisque;
+       margin-bottom: 20px;
+    }
+    h3{
+        font-size: medium;
+        /* font-weight: bold; */
+        word-spacing: 2px;
+        font-family: 'Mohave', sans-serif;
+        margin: 0 auto;
+    }
+    i{
+        font-size: 20px;
+        cursor: pointer;
+    }
+    @media only screen and (max-width: 600px) {
+  .container{
+      display: block;
+  }
+  .movDiv{
+      width: 100%;
+      margin-bottom: 20px;
+  }
+  i{
+      /* position: absolute;
+      top: 100%;
+      left: 50%; */
+       margin-bottom: 40px;
+      transform: translate(-150px,30px); 
+      font-size: 30px;
+      
+  }
+  .buttons{
+      width: 100%;
+      margin-bottom: 20px;
+  }
+  input {
+      width: 80%;
+  }
+}
+</style>
+<body>
+    <label for="">Your List</label>
+    <div class="container">
+
+        <h3></h3>
+    </div>
+    
+    <script>
+        var counter =0;
+        const container = document.querySelector('.container')
+        const images = 'https://image.tmdb.org/t/p/w500/';
+       document.body.onload = async()=>{
+        //    const result = await fetch('/getList');
+        //    const movies = await result.json();
+           const moviesLc = Object.values({...localStorage});
+           const h3 = document.querySelector('h3');
+        //    console.log(movies);
+           if (moviesLc == '')
+           h3.innerText = 'Empty List';
+           else {
+                for (i=0;i<moviesLc.length;i++){
+               
+                     fetchData(moviesLc[i])
+               }
+               
+           }
+
+       }
+        function getInfo(data){
+            var addDiv = document.createElement('div');
+            var movDiv = document.createElement('div');
+            container.appendChild(movDiv);
+            movDiv.className = `movDiv ${counter}`;
+            var name = data.results[0].original_title
+            var imgSrc = data.results[0].poster_path;
+            var rate = data.results[0].vote_average;
+            // var description = data.results[0].overview;
+            var relDate = data.results[0].release_date;
+
+            const movName = document.createElement('h3');
+                movName.className =`movie ${counter}`;
+                movName.innerText = name + ' (' + relDate.substring(0,4) +')';
+                movDiv.appendChild(movName);
+                const movRate = document.createElement('h3');
+                movRate.innerText ='Rate : '+  rate;
+                movDiv.appendChild(movRate)
+                const movDesc = document.createElement('h3');
+                // movDesc.innerText = description;
+                movDiv.appendChild(movDesc);
+                
+                
+                const img = document.createElement('img');
+                img.src = images + imgSrc;
+                img.width=300;
+                img.height =300; 
+                movDiv.appendChild(img)
+                movDiv.innerHTML += `<i onclick="adlog(${counter})" class="fas fa-minus-circle ${counter}"></i>`
+                const movToLc = document.getElementsByClassName(`movie ${counter}`)[0].innerText;
+                var lc = localStorage.setItem(`movie ${counter}` ,movToLc)
+                counter++;
+                
+            }
+            async function fetchData (name)
+            {
+                
+                name= name.replaceAll(' ', '%20')
+                name  = name.slice(0,name.indexOf('('));
+                
+                console.log(name)
+            fetch(`https://api.themoviedb.org/3/search/movie?api_key=a23d26397704c9e669e5e788ec4c6b54&language=en-US&query=${name}&page=1&include_adult=false`)
+            .then(res=>res.json())
+            .then(data=>{
+                console.log(data)
+            
+                getInfo(data);
+            })
+          
+        }
+       async function adlog(counter){
+            
+                console.log(counter)
+                var delMovDiv = document.getElementsByClassName(`movDiv ${counter}`);
+             delMovDiv[0].style.display =  'none'
+             const name = document.getElementsByClassName(`movie ${counter}`)[0].innerText;
+             localStorage.removeItem(`movie ${counter}`)
+             
+             alert('Movie removed from your list successfully');
+                // adds.forEach(add => add.addEventListener('click' ,()=>{
+                   
+                // console.log(add.className)}))
+                
+           
+        }
+        
+    </script>
+</body>
+</html>
